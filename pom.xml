@@ -63,13 +63,13 @@
 
         <!-- images -->
         <keycloak.image>quay.io/keycloak/keycloak:20.0.3</keycloak.image>
-        <keycloak-vc-issuer.image>quay.io/fiware/keycloak-vc-issuer:0.3.3</keycloak-vc-issuer.image>
-        <vcverifer.image>quay.io/fiware/vcverifier:1.0.0</vcverifer.image>
-        <waltid.image>quay.io/fiware/waltid:1.14.0-SNAPSHOT</waltid.image>
+        <keycloak-vc-issuer.image>quay.io/fiware/keycloak-vc-issuer:0.3.4</keycloak-vc-issuer.image>
+        <vcverifer.image>quay.io/fiware/vcverifier:1.3.1</vcverifer.image>
+        <waltid.image>quay.io/fiware/waltid:1.14.1-SNAPSHOT</waltid.image>
         <satellite.image>quay.io/fiware/ishare-satellite:1.3.3</satellite.image>
         <kong.image>quay.io/fiware/kong:0.5.2</kong.image>
         <keyrock.image>quay.io/fiware/idm:8.3.0</keyrock.image>
-        <dsba-pdp.image>quay.io/fiware/dsba-pdp:0.3.4</dsba-pdp.image>
+        <dsba-pdp.image>quay.io/fiware/dsba-pdp:0.4.0</dsba-pdp.image>
     </properties>
 
     <dependencyManagement>
