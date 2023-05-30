@@ -69,7 +69,7 @@
         <satellite.image>quay.io/fiware/ishare-satellite:1.3.3</satellite.image>
         <kong.image>quay.io/fiware/kong:0.5.2</kong.image>
         <keyrock.image>quay.io/fiware/idm:8.3.0</keyrock.image>
-        <dsba-pdp.image>quay.io/fiware/dsba-pdp:0.4.0</dsba-pdp.image>
+        <dsba-pdp.image>quay.io/fiware/dsba-pdp:0.6.0</dsba-pdp.image>
         <til.image>quay.io/wi_stefan/trusted-issuers-list:0.0.3</til.image>
     </properties>
 
