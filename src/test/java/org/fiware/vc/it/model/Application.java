@@ -7,6 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.fiware.til.model.ClaimVO;
+import org.fiware.til.model.CredentialsVO;
+import org.fiware.til.model.TrustedIssuerVO;
+import org.fiware.vc.it.PacketDeliveryEnvironment;
 
 import javax.ws.rs.core.MediaType;
 import java.net.URI;
@@ -14,6 +18,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -21,7 +26,9 @@ import java.util.UUID;
 
 import static org.fiware.vc.it.TestUtils.getFormDataAsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
 public class Application {
@@ -47,10 +54,55 @@ public class Application {
 		loginSession = UUID.randomUUID().toString();
 	}
 
+	public void registerTrustedIssuer(String did) throws Exception {
+
+		List<Object> allowedRoles = List.of(
+				// the current implementation of the verifier requires an exact match of the claim, thus every potential combination needs to be registered
+				List.of(new AllowedRoles().setNames(List.of("GOLD_CUSTOMER", "STANDARD_CUSTOMER"))
+						.setTarget(PacketDeliveryEnvironment.PACKET_DELIVERY_DID)),
+				List.of(new AllowedRoles().setNames(List.of("STANDARD_CUSTOMER", "GOLD_CUSTOMER"))
+						.setTarget(PacketDeliveryEnvironment.PACKET_DELIVERY_DID)),
+				List.of(new AllowedRoles().setNames(List.of("GOLD_CUSTOMER"))
+						.setTarget(PacketDeliveryEnvironment.PACKET_DELIVERY_DID)),
+				List.of(new AllowedRoles().setNames(List.of("STANDARD_CUSTOMER"))
+						.setTarget(PacketDeliveryEnvironment.PACKET_DELIVERY_DID))
+		);
+
+		TrustedIssuerVO issuerToRegister = new TrustedIssuerVO()
+				.did(did)
+				.credentials(List.of(
+						new CredentialsVO()
+								.credentialsType("VerifiableCredential")
+								.claims(
+										List.of(
+												new ClaimVO()
+														.name("roles")
+														.allowedValues(allowedRoles))),
+						new CredentialsVO()
+								.credentialsType("PacketDeliveryService")
+								.claims(
+										List.of(
+												new ClaimVO()
+														.name("roles")
+														.allowedValues(allowedRoles)))
+
+				));
+		HttpRequest registerIssuer = HttpRequest.newBuilder()
+				.uri(URI.create(String.format("%s/issuer",
+						PacketDeliveryEnvironment.PACKET_DELIVERY_TRUSTED_ISSUERS_LIST_ADDRESS)))
+				.POST(HttpRequest.BodyPublishers.ofString(OBJECT_MAPPER.writeValueAsString(issuerToRegister)))
+				.header("Content-Type", "application/json")
+				.build();
+		int creationState = HTTP_CLIENT.send(registerIssuer, HttpResponse.BodyHandlers.ofString()).statusCode();
+
+		assertTrue(List.of(HttpStatus.SC_CREATED, HttpStatus.SC_CONFLICT).contains(creationState),
+				"The issuer should either be created or already exist.");
+	}
+
 	public SameDeviceParams startSameDeviceFlow() throws Exception {
 		HttpRequest startSameDevice = HttpRequest.newBuilder()
-				.uri(URI.create(String.format("%s/api/v1/samedevice?state=%s",
-						applicationConfig.verifierAddress(), loginSession)))
+				.uri(URI.create(String.format("%s/api/v1/samedevice?state=%s&client_id=%s",
+						applicationConfig.verifierAddress(), loginSession, applicationConfig.clientId())))
 				.GET()
 				.build();
 		HttpResponse<String> sameDeviceResponse = HTTP_CLIENT.send(startSameDevice,

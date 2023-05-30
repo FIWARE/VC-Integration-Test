@@ -16,6 +16,22 @@ data:
       level: DEBUG
       jsonLogging: true
       logRequests: true
+    configRepo:
+      services:
+        packet-delivery-service:
+          scope: 
+            - PacketDeliveryService
+            - VerifiableCredential
+          trustedParticipants:
+            PacketDeliveryService:
+              - http://til:5050/
+            VerifiableCredential:
+              - http://til:5050/
+          trustedIssuers:
+            PacketDeliveryService:
+              - http://til:5050/
+            VerifiableCredential:
+              - http://til:5050/
 ---
 kind: Deployment
 apiVersion: apps/v1

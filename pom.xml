@@ -64,12 +64,13 @@
         <!-- images -->
         <keycloak.image>quay.io/keycloak/keycloak:20.0.3</keycloak.image>
         <keycloak-vc-issuer.image>quay.io/fiware/keycloak-vc-issuer:0.3.4</keycloak-vc-issuer.image>
-        <vcverifer.image>quay.io/fiware/vcverifier:1.3.1</vcverifer.image>
+        <vcverifer.image>quay.io/fiware/vcverifier:2.0.0-PRE-10</vcverifer.image>
         <waltid.image>quay.io/fiware/waltid:1.14.1-SNAPSHOT</waltid.image>
         <satellite.image>quay.io/fiware/ishare-satellite:1.3.3</satellite.image>
         <kong.image>quay.io/fiware/kong:0.5.2</kong.image>
         <keyrock.image>quay.io/fiware/idm:8.3.0</keyrock.image>
         <dsba-pdp.image>quay.io/fiware/dsba-pdp:0.4.0</dsba-pdp.image>
+        <til.image>quay.io/wi_stefan/trusted-issuers-list:0.0.3</til.image>
     </properties>
 
     <dependencyManagement>
@@ -185,7 +186,7 @@
                 <version>${version.org.openapitools.generator-maven-plugin}</version>
                 <executions>
                     <execution>
-                        <id>openapi</id>
+                        <id>keycloak</id>
                         <phase>generate-sources</phase>
                         <goals>
                             <goal>generate</goal>
@@ -195,6 +196,29 @@
                             </inputSpec>
                             <strictSpec>true</strictSpec>
                             <modelPackage>org.fiware.keycloak.oidcvc.model</modelPackage>
+                            <generateAliasAsModel>true</generateAliasAsModel>
+                            <generatorName>jaxrs-spec</generatorName>
+                            <!-- the generated interfaces cannot be used, since there class level annotations clash with the spi. -->
+                            <generateApis>false</generateApis>
+                            <modelNameSuffix>VO</modelNameSuffix>
+                            <configOptions>
+                                <interfaceOnly>true</interfaceOnly>
+                                <containerDefaultToNull>true</containerDefaultToNull>
+                                <returnResponse>true</returnResponse>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>til</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>https://raw.githubusercontent.com/FIWARE/trusted-issuers-list/main/api/trusted-issuers-list.yaml
+                            </inputSpec>
+                            <strictSpec>true</strictSpec>
+                            <modelPackage>org.fiware.til.model</modelPackage>
                             <generateAliasAsModel>true</generateAliasAsModel>
                             <generatorName>jaxrs-spec</generatorName>
                             <!-- the generated interfaces cannot be used, since there class level annotations clash with the spi. -->
@@ -435,6 +459,8 @@
                                         <portBinding>8060:8060</portBinding>
                                         <!-- keyrock-ar -->
                                         <portBinding>5080:5080</portBinding>
+                                        <!-- til -->
+                                        <portBinding>5050:5050</portBinding>
                                     </portBindings>
                                 </configuration>
                             </execution>
@@ -501,6 +527,8 @@
                                         <portBinding>8060:8060</portBinding>
                                         <!-- keyrock-ar -->
                                         <portBinding>5080:5080</portBinding>
+                                        <!-- til -->
+                                        <portBinding>5050:5050</portBinding>
                                     </portBindings>
                                 </configuration>
                             </execution>

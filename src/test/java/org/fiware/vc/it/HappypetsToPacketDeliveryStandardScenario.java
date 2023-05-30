@@ -41,7 +41,15 @@ public class HappypetsToPacketDeliveryStandardScenario extends StepDefinitions {
 						PacketDeliveryEnvironment.PACKET_DELIVERY_DID,
 						PacketDeliveryEnvironment.PACKET_DELIVERY_VERIFIER_ADDRESS,
 						"/token",
-						PacketDeliveryEnvironment.PACKET_DELIVERY_ORION_ADDRESS));
+						PacketDeliveryEnvironment.PACKET_DELIVERY_ORION_ADDRESS,
+						PacketDeliveryEnvironment.PACKET_DELIVERY_SERVICE_ID));
+	}
+
+	@Given("HappyPets is a trusted issuer in PacketDelivery.")
+	public  void registerHappyPetsAtPacketDelivery() throws Exception {
+		// In order to be accepted by PacketDelivery, HappyPets needs to be registerd at the Trusted Issuers List of PacketDelivery.
+		// In a real world use-case, that might happen through a marketplace, where HappyPets purchased the access for its users.
+		userEnvironment.getApplication().registerTrustedIssuer(HappyPetsEnvironment.HAPPYPETS_DID);
 	}
 
 	@When("The gold user requests a credentials offer from HappyPets.")
