@@ -2,6 +2,7 @@ Feature: An Happypets User get a credentials and uses it to access packetdeliver
 
   Scenario: An admin user gets a credential from HappyPets, using the OIDC4VCI flow.
     Given An application provides access to PacketDelivery.
+    Given HappyPets is a trusted issuer in PacketDelivery.
     And The HappyPets issuer is ready to provide credentials.
     And The policies are properly setup.
     When The gold user requests a credentials offer from HappyPets.

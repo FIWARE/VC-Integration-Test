@@ -1,0 +1,46 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: til
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: til
+  template:
+    metadata:
+      labels:
+        app: til
+      annotations:
+        deployment/id: "_DEFAULT_DEPLOYMENT_"
+    spec:
+      containers:
+        - name: til
+          image: til
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5050
+              name: api
+          env:
+            - name: MICRONAUT_SERVER_PORT
+              value: "5050"
+            - name: DATASOURCES_DEFAULT_URL
+              value: "jdbc:h2:mem:devDb;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
+            - name: DATASOURCES_DEFAULT_DRIVER_CLASS_NAME
+              value: "org.h2.Driver"
+            - name: DATASOURCES_DEFAULT_DIALECT
+              value: "H2"
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: til
+spec:
+  type: LoadBalancer
+  ports:
+    - name: api
+      port: 5050
+      targetPort: api
+      protocol: TCP
+  selector:
+    app: til
