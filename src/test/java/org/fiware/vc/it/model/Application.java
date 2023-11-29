@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.fiware.ccs.model.CredentialVO;
+import org.fiware.ccs.model.ServiceVO;
 import org.fiware.til.model.ClaimVO;
 import org.fiware.til.model.CredentialsVO;
 import org.fiware.til.model.TrustedIssuerVO;
@@ -18,7 +20,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -26,7 +27,6 @@ import java.util.UUID;
 
 import static org.fiware.vc.it.TestUtils.getFormDataAsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -39,7 +39,7 @@ public class Application {
 
 	private static final HttpClient HTTP_CLIENT = HttpClient
 			.newBuilder()
-			// we dont follow the redirect directly, since we are not a real wallet
+			// we don't follow the redirect directly, since we are not a real wallet
 			.followRedirects(HttpClient.Redirect.NEVER)
 			.build();
 
@@ -52,6 +52,30 @@ public class Application {
 
 	public void initiateLogin() {
 		loginSession = UUID.randomUUID().toString();
+	}
+
+	public void registerCredentialsConfig() throws Exception {
+		ServiceVO pdcPortalService = new ServiceVO()
+				.id(PacketDeliveryEnvironment.PACKET_DELIVERY_SERVICE_ID)
+				.credentials(List.of(
+						new CredentialVO().type("VerifiableCredential")
+								.trustedIssuersLists(List.of("http://til:5050/"))
+								.trustedParticipantsLists(List.of("http://til:5050/")
+								),
+						new CredentialVO().type("PacketDeliveryService")
+								.trustedIssuersLists(List.of("http://til:5050/"))
+								.trustedParticipantsLists(List.of("http://til:5050/"))
+				));
+		HttpRequest registerService = HttpRequest.newBuilder()
+				.uri(URI.create(String.format("%s/service",
+						PacketDeliveryEnvironment.PACKET_DELIVERY_CREDENTIALS_CONFIG_SERVICE_ADDRESS)))
+				.POST(HttpRequest.BodyPublishers.ofString(OBJECT_MAPPER.writeValueAsString(pdcPortalService)))
+				.header("Content-Type", "application/json")
+				.build();
+		int creationState = HTTP_CLIENT.send(registerService, HttpResponse.BodyHandlers.ofString()).statusCode();
+
+		assertTrue(List.of(HttpStatus.SC_CREATED, HttpStatus.SC_CONFLICT).contains(creationState),
+				"The service should either be created or already exist.");
 	}
 
 	public void registerTrustedIssuer(String did) throws Exception {
