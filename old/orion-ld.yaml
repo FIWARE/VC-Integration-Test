@@ -56,7 +56,7 @@ spec:
       containers:
         - name: mongo-db
           imagePullPolicy: IfNotPresent
-          image: "quay.io/opencloudio/ibm-mongodb:4.0.24"
+          image: mongodb
           securityContext:
             runAsUser: 999
           ports:
@@ -108,7 +108,7 @@ spec:
       containers:
         - name: orion-ld
           imagePullPolicy: IfNotPresent
-          image: quay.io/fiware/orion-ld:1.1.2
+          image: orion
           ports:
             - name: http
               containerPort: 1026

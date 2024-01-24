@@ -245,15 +245,15 @@ spec:
             - name: ISHARE_CLIENT_ID
               value: "EU.EORI.PACKETDELIVERY"
             - name: ISHARE_AR_ID
-              value: "EU.EORI.PACKETDELIVERY"
+              value: "did:key:z6MksU6tMfbaDzvaRe5oFE4eZTVTV4HJM4fmQWWGsDGQVsEr"
             - name: ISHARE_AUTHORIZATION_REGISTRY_URL
-              value: "http://keyrock-ar:5080"
+              value: "http://it-keyrock:5080"
             - name: ISHARE_DELEGATION_PATH
               value: "/ar/delegation"
             - name: ISHARE_TOKEN_PATH
               value: "/oauth2/token"
             - name: ISHARE_TRUST_ANCHOR_URL
-              value: "http://satellite:6060"
+              value: "http://it-trusted-issuers-registry:8080"
             - name: ISHARE_TRUST_ANCHOR_ID
               value: "EU.EORI.FIWARESATELLITE"
             - name: ISHARE_TRUST_ANCHOR_TOKEN_PATH
@@ -263,7 +263,7 @@ spec:
             - name: ISHARE_TRUSTED_FINGERPRINTS_LIST
               value: "D2F62092F982CF783D4632BD86FA86C3FBFDB2D8C8A58BC6809163FCF5CD030B"
             - name: TRUSTED_VERIFIERS
-              value: "http://vcverifier:7070/.well-known/jwks"
+              value: "http://it-vcverifier:7070/.well-known/jwks"
             - name: MYSQL_HOST
               value: ""
             # very low to prevent race-condition on test-startup. Not recommended and required in real environments.

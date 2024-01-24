@@ -1,0 +1,125 @@
+route:
+  enabled: false
+  
+realm:
+  orionPep:
+    baseUrl: https://orion-ld
+    adminUrl: https://orion-ld
+    redirectUris:
+      - https://orion-ld/
+    webOrigins:
+      - https://orion-ld/
+
+keycloak:
+  service:
+    type: LoadBalancer
+    ports:
+      http: 8080
+  image: 
+    tag: 21.1.2-debian-11-r1
+  logging:
+    level: INFO
+  replicaCount: 1
+  auth:
+    adminUser: fiwareAdmin
+    adminPassword: fiwareAdmin
+  serviceAccount:
+    create: true
+  rbac:
+    create: true
+    rules:
+      - apiGroups:
+        - security.openshift.io
+        resourceNames:
+        - anyuid
+        resources:
+        - securitycontextconstraints
+        verbs:
+        - use
+
+  
+  keycloakConfigCli:
+    enabled: true
+    # current image does not contain 20.0.3., thus we need this fix
+    command: 
+      - java
+      - -jar
+      - /opt/bitnami/keycloak-config-cli/keycloak-config-cli-20.0.1.jar
+
+    extraEnvVars:
+      - name: IMPORT_FILES_LOCATIONS
+        value: "/config/*"
+    containerSecurityContext:
+      enabled: false
+    podSecurityContext:
+      enabled: false
+    existingConfigmap: it-keycloak-realm
+  
+  extraEnvVars:
+  - name: KEYCLOAK_PROXY_ADDRESS_FORWARDING
+    value: "true"
+  - name: KEYCLOAK_LOG_LEVEL
+    value: INFO
+  - name: VCISSUER_ISSUER_DID
+    value: "did:key:z6MkigCEnopwujz8Ten2dzq91nvMjqbKQYcifuZhqBsEkH7g"
+  - name: VCISSUER_WALTID_ADDRESS
+    value: "http://it-vcwaltid"
+
+
+  extraVolumeMounts:
+    - name: profiles
+      mountPath: /opt/bitnami/keycloak/conf/profile.properties
+      subPath: profile.properties
+    - name: providers
+      mountPath: /opt/bitnami/keycloak/providers/
+    - name: issuer-key
+      mountPath: /opt/keys
+    - name: data
+      mountPath: /data
+
+  extraVolumes:
+    - name: data
+      emptyDir: {}
+    - name: profiles
+      configMap:
+        name: it-keycloak-profile
+    - name: providers
+      emptyDir: {}
+    - name: issuer-key
+      configMap:
+        name: it-keycloak-key
+    - name: did-config
+      configMap:
+        name: it-keycloak-did-config
+
+  initContainers:
+    - name: add-vc-issuer
+      image: quay.io/fiware/keycloak-vc-issuer:1.0.1
+      imagePullPolicy: IfNotPresent
+      volumeMounts:
+        - name: providers
+          mountPath: /target
+    - name: load-did
+      image: quay.io/opencloudio/curl:4.2.0-build.8
+      imagePullPolicy: IfNotPresent
+      command: 
+        - /bin/sh
+        - /opt/did/script/import.sh
+      env:
+        - name: WALTID_CORE_ADDRESS
+          value: "it-vcwaltid:7000"
+      volumeMounts:
+        - name: did-config
+          mountPath: /opt/did/script
+        - name: issuer-key
+          mountPath: /opt/keys
+  
+  postgresql:
+    enabled: false
+
+  externalDatabase:
+    host: postgresql-hp
+    user: keycloak
+    database: keycloak_one
+    existingSecret: postgres-secret
+    existingSecretPasswordKey: postgres-password

@@ -86,22 +86,7 @@ spec:
         - name: keyfile
           configMap:
             name: keycloak-issuer-key
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: keycloak-issuer-key
-data:
-  keyfile.json: |
-    {
-      "kty": "OKP",
-      "d": "gGqnb6ij2s-BGUpAgWVGv9odIHciuF-GuLDqyt2pLm0",
-      "use": "sig",
-      "crv": "Ed25519",
-      "kid": "z6MkigCEnopwujz8Ten2dzq91nvMjqbKQYcifuZhqBsEkH7g",
-      "x": "Pr7-Zath5ZMyvikX93LzsJNkl6HcAAJdgrwlBTSE6gs",
-      "alg": "EdDSA"
-    }
+
 ---
 # Source: keycloak/templates/realmConfigmap.yaml
 apiVersion: v1
@@ -763,7 +748,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: keycloak-config-cli
-          image: docker.io/bitnami/keycloak-config-cli:5.5.0-debian-11-r36
+          image: keycloak-cli
           imagePullPolicy: IfNotPresent
           command:
             - java

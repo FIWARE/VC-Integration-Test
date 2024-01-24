@@ -8,6 +8,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.fiware.ccs.model.CredentialVO;
+import org.fiware.ccs.model.ServiceScopesEntryVO;
 import org.fiware.ccs.model.ServiceVO;
 import org.fiware.til.model.ClaimVO;
 import org.fiware.til.model.CredentialsVO;
@@ -26,9 +27,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.fiware.vc.it.TestUtils.getFormDataAsString;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 public class Application {
@@ -55,17 +54,18 @@ public class Application {
 	}
 
 	public void registerCredentialsConfig() throws Exception {
+		ServiceScopesEntryVO serviceScopeEntry = new ServiceScopesEntryVO();
+		serviceScopeEntry.add(new CredentialVO().type("VerifiableCredential")
+				.trustedIssuersLists(List.of("http://it-trusted-issuers-list:5050/"))
+				.trustedParticipantsLists(List.of("http://it-trusted-issuers-list:5050/")
+				));
+		serviceScopeEntry.add(new CredentialVO().type("PacketDeliveryService")
+				.trustedIssuersLists(List.of("http://it-trusted-issuers-list:5050/"))
+				.trustedParticipantsLists(List.of("http://it-trusted-issuers-list:5050/")));
 		ServiceVO pdcPortalService = new ServiceVO()
 				.id(PacketDeliveryEnvironment.PACKET_DELIVERY_SERVICE_ID)
-				.credentials(List.of(
-						new CredentialVO().type("VerifiableCredential")
-								.trustedIssuersLists(List.of("http://til:5050/"))
-								.trustedParticipantsLists(List.of("http://til:5050/")
-								),
-						new CredentialVO().type("PacketDeliveryService")
-								.trustedIssuersLists(List.of("http://til:5050/"))
-								.trustedParticipantsLists(List.of("http://til:5050/"))
-				));
+				.defaultOidcScope("pdc")
+				.oidcScopes(Map.of("pdc", serviceScopeEntry));
 		HttpRequest registerService = HttpRequest.newBuilder()
 				.uri(URI.create(String.format("%s/service",
 						PacketDeliveryEnvironment.PACKET_DELIVERY_CREDENTIALS_CONFIG_SERVICE_ADDRESS)))

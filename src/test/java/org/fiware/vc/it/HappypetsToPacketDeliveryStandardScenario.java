@@ -70,10 +70,19 @@ public class HappypetsToPacketDeliveryStandardScenario extends StepDefinitions {
 		String adminJwt = getUserTokenForAccountsAtHappypets(HappyPetsEnvironment.HAPPTYPETS_GOLD_USER,
 				HappyPetsEnvironment.HAPPTYPETS_GOLD_USER_PASSWORD);
 
+		// the token is used to receive a nonce from the keycloak-issuer, to be used to retrieve the actual offer
+		userEnvironment.getWallet().getCredentialsOfferURI(adminJwt,
+				String.format("%s/credential-offer-uri?type=PacketDeliveryService&format=ldp_vc",
+						getHappyPetsIssuerBase()));
+		assertTrue(userEnvironment.getWallet().getCredentialsOfferNonce().isPresent(),
+				"The user's wallet should have received an offer nonce.");
+
+
 		// the token is used to receive an actual offer from the keycloak-issuer
 		userEnvironment.getWallet().getCredentialsOffer(adminJwt,
-				String.format("%s/credential-offer?type=PacketDeliveryService&format=ldp_vc",
-						getHappyPetsIssuerBase()));
+				String.format("%s/credential-offer/%s",
+						getHappyPetsIssuerBase(),userEnvironment.getWallet().getCredentialsOfferNonce().get()));
+
 		assertTrue(userEnvironment.getWallet().getCredentialsOffer().isPresent(),
 				"The user's wallet should have received an offer.");
 	}

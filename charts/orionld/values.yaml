@@ -1,0 +1,16 @@
+orion:
+  fullnameOverride: orion-ld
+  test:
+    enabled: false
+  broker:
+    db:
+      auth:
+        user: root
+        password: orion
+        mech: "SCRAM-SHA-1"
+      hosts:
+        - mongodb
+
+  mongo:
+    # we want to use the individually deployed mongodb
+    enabled: false

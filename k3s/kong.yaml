@@ -26,7 +26,7 @@ data:
             config:
               pathprefix: "/orion-ld"
               authorizationendpointtype: ExtAuthz
-              authorizationendpointaddress: http://dsba-pdp:7080/authz
+              authorizationendpointaddress: http://it-dsba-pdp:7080/authz
 
           - name: request-transformer
             config:
