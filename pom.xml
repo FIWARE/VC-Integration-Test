@@ -62,21 +62,6 @@
         <version.io.cucumber>7.11.1</version.io.cucumber>
         <version.org.keycloak.keycloak-admin-client>21.0.1</version.org.keycloak.keycloak-admin-client>
 
-        <!-- images -->
-        <keycloak.image>docker.io/bitnami/keycloak:21.1.2-debian-11-r1</keycloak.image>
-        <keycloak-cli.image>docker.io/bitnami/keycloak-config-cli:5.5.0-debian-11-r36</keycloak-cli.image>
-        <keycloak-vc-issuer.image>quay.io/fiware/keycloak-vc-issuer:1.0.2</keycloak-vc-issuer.image>
-        <vcverifer.image>quay.io/fiware/vcverifier:2.5.0</vcverifer.image>
-        <waltid.image>quay.io/fiware/waltid:1.14.1-SNAPSHOT</waltid.image>
-        <satellite.image>quay.io/fiware/ishare-satellite:1.3.3</satellite.image>
-        <kong.image>quay.io/fiware/kong:0.5.2</kong.image>
-        <keyrock.image>quay.io/fiware/idm:8.3.0</keyrock.image>
-        <dsba-pdp.image>quay.io/fiware/dsba-pdp:1.2.0</dsba-pdp.image>
-        <til.image>quay.io/fiware/trusted-issuers-list:0.0.3</til.image>
-        <ccs.image>quay.io/fiware/credentials-config-service:1.0.1</ccs.image>
-        <orion.image>quay.io/fiware/orion-ld:1.4.0</orion.image>
-        <mongodb.image>quay.io/opencloudio/ibm-mongodb:4.0.24</mongodb.image>
-        <mysql.image>mysql:5.7</mysql.image>
     </properties>
 
     <dependencyManagement>
@@ -345,109 +330,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--<plugin>
-                <groupId>org.eclipse.jkube</groupId>
-                <artifactId>kubernetes-maven-plugin</artifactId>
-                <version>${version.org.eclipse.jkube.kubernetes-maven-plugin}</version>
-                <executions>
-                    <execution>
-                        <id>test-prep</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>build</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <images>
-                        &lt;!&ndash; just to re-tag for the test setup &ndash;&gt;
-                        <image>
-                            <name>keycloak</name>
-                            <build>
-                                <from>${keycloak.image}</from>
-                            </build>
-                        </image>
-                        <image>
-                            <name>keycloak-cli</name>
-                            <build>
-                                <from>${keycloak-cli.image}</from>
-                            </build>
-                        </image>
-                        <image>
-                            <name>keycloak-vc-issuer</name>
-                            <build>
-                                <from>${keycloak-vc-issuer.image}</from>
-                            </build>
-                        </image>
-                        <image>
-                            <name>vc-verifier</name>
-                            <build>
-                                <from>${vcverifer.image}</from>
-                            </build>
-                        </image>
-                        <image>
-                            <name>waltid-ssikit</name>
-                            <build>
-                                <from>${waltid.image}</from>
-                            </build>
-                        </image>
-                        <image>
-                            <name>satellite</name>
-                            <build>
-                                <from>${satellite.image}</from>
-                            </build>
-                        </image>
-                        <image>
-                            <name>kong</name>
-                            <build>
-                                <from>${kong.image}</from>
-                            </build>
-                        </image>
-                        <image>
-                            <name>dsba-pdp</name>
-                            <build>
-                                <from>${dsba-pdp.image}</from>
-                            </build>
-                        </image>
-                        <image>
-                            <name>keyrock</name>
-                            <build>
-                                <from>${keyrock.image}</from>
-                            </build>
-                        </image>
-                        <image>
-                            <name>til</name>
-                            <build>
-                                <from>${til.image}</from>
-                            </build>
-                        </image>
-                        <image>
-                            <name>ccs</name>
-                            <build>
-                                <from>${ccs.image}</from>
-                            </build>
-                        </image>
-                        <image>
-                            <name>orion</name>
-                            <build>
-                                <from>${orion.image}</from>
-                            </build>
-                        </image>
-                        <image>
-                            <name>mysql</name>
-                            <build>
-                                <from>${mysql.image}</from>
-                            </build>
-                        </image>
-                        <image>
-                            <name>mongodb</name>
-                            <build>
-                                <from>${mongodb.image}</from>
-                            </build>
-                        </image>
-                    </images>
-                </configuration>
-            </plugin>-->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <executions>
@@ -556,25 +438,9 @@
                                     <goal>run</goal>
                                     <goal>image</goal>
                                     <goal>apply</goal>
+                                    <goal>rm</goal>
                                 </goals>
                                 <configuration>
-                                    <!--<dockerImages>
-                                        <dockerImage>keycloak</dockerImage>
-                                        <dockerImage>keycloak-vc-issuer</dockerImage>
-                                        <dockerImage>keycloak-cli</dockerImage>
-                                        <dockerImage>vc-verifier</dockerImage>
-                                        <dockerImage>waltid-ssikit</dockerImage>
-                                        <dockerImage>satellite</dockerImage>
-                                        <dockerImage>kong</dockerImage>
-                                        <dockerImage>dsba-pdp</dockerImage>
-                                        <dockerImage>keyrock</dockerImage>
-                                        <dockerImage>til</dockerImage>
-                                        <dockerImage>ccs</dockerImage>
-                                        <dockerImage>mysql</dockerImage>
-                                        <dockerImage>orion</dockerImage>
-                                        <dockerImage>mongodb</dockerImage>
-                                        <dockerImage>quay.io/wi_stefan/ishare-jwt-helper:0.3.0</dockerImage>
-                                    </dockerImages>-->
                                     <timeout></timeout>
                                     <manifests>${project.build.directory}/k3s/</manifests>
                                     <portBindings>
@@ -605,7 +471,7 @@
             <id>dev</id>
             <build>
                 <plugins>
-                    <!-- run tests -->
+                    <!-- run tests and keep cluster -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
@@ -632,26 +498,8 @@
                                     <goal>run</goal>
                                     <goal>image</goal>
                                     <goal>apply</goal>
-                                    <!--                                    <goal>rm</goal>-->
                                 </goals>
                                 <configuration>
-                                    <!--<dockerImages>
-                                        <dockerImage>keycloak</dockerImage>
-                                        <dockerImage>keycloak-cli</dockerImage>
-                                        <dockerImage>keycloak-vc-issuer</dockerImage>
-                                        <dockerImage>vc-verifier</dockerImage>
-                                        <dockerImage>waltid-ssikit</dockerImage>
-                                        <dockerImage>satellite</dockerImage>
-                                        <dockerImage>kong</dockerImage>
-                                        <dockerImage>dsba-pdp</dockerImage>
-                                        <dockerImage>keyrock</dockerImage>
-                                        <dockerImage>til</dockerImage>
-                                        <dockerImage>ccs</dockerImage>
-                                        <dockerImage>mysql</dockerImage>
-                                        <dockerImage>orion</dockerImage>
-                                        <dockerImage>mongodb</dockerImage>
-                                        <dockerImage>quay.io/wi_stefan/ishare-jwt-helper:0.3.0</dockerImage>
-                                    </dockerImages>-->
                                     <manifests>${project.build.directory}/k3s/</manifests>
                                     <portBindings>
                                         <!-- verifier -->
