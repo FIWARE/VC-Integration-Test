@@ -10,7 +10,7 @@ data:
     _transform: true
     
     services:
-      - host: "orion-ld"
+      - host: "it-orion"
         name: "orion-ld"
         port: 1026
         protocol: http
