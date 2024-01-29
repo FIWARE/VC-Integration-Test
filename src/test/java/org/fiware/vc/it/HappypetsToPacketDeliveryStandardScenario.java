@@ -5,6 +5,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import lombok.extern.slf4j.Slf4j;
+import org.awaitility.Awaitility;
 import org.fiware.vc.it.model.ApplicationConfig;
 import org.fiware.vc.it.model.AuthResponseParams;
 import org.fiware.vc.it.model.SameDeviceParams;
@@ -41,10 +42,27 @@ public class HappypetsToPacketDeliveryStandardScenario extends StepDefinitions {
 						PacketDeliveryEnvironment.PACKET_DELIVERY_DID,
 						PacketDeliveryEnvironment.PACKET_DELIVERY_VERIFIER_ADDRESS,
 						"/token",
-						PacketDeliveryEnvironment.PACKET_DELIVERY_ORION_ADDRESS));
+						PacketDeliveryEnvironment.PACKET_DELIVERY_ORION_ADDRESS,
+						PacketDeliveryEnvironment.PACKET_DELIVERY_SERVICE_ID));
+	}
+
+	@Given("HappyPets is a trusted issuer in PacketDelivery.")
+	public void registerHappyPetsAtPacketDelivery() throws Exception {
+		// In order to be accepted by PacketDelivery, HappyPets needs to be registerd at the Trusted Issuers List of PacketDelivery.
+		// In a real world use-case, that might happen through a marketplace, where HappyPets purchased the access for its users.
+		userEnvironment.getApplication().registerTrustedIssuer(HappyPetsEnvironment.HAPPYPETS_DID);
+	}
+
+	@Given("The packet-delivery portal is registered at the config-service.")
+	public void registerThePortal() throws Exception {
+		// the portal has to be registered as a client at the verifier's config service
+		userEnvironment.getApplication().registerCredentialsConfig();
+		// we need to wait for the config service to get the credentials
+		Thread.sleep(32000);
 	}
 
 	@When("The gold user requests a credentials offer from HappyPets.")
+
 	public void happyPetsGoldGetCredentialsOffer() throws Exception {
 		// a user account token is required to retrieve an offer
 		// in a real world scenario, this could f.e. be a login to keycloak, where to QR is scanned
@@ -52,10 +70,19 @@ public class HappypetsToPacketDeliveryStandardScenario extends StepDefinitions {
 		String adminJwt = getUserTokenForAccountsAtHappypets(HappyPetsEnvironment.HAPPTYPETS_GOLD_USER,
 				HappyPetsEnvironment.HAPPTYPETS_GOLD_USER_PASSWORD);
 
+		// the token is used to receive a nonce from the keycloak-issuer, to be used to retrieve the actual offer
+		userEnvironment.getWallet().getCredentialsOfferURI(adminJwt,
+				String.format("%s/credential-offer-uri?type=PacketDeliveryService&format=ldp_vc",
+						getHappyPetsIssuerBase()));
+		assertTrue(userEnvironment.getWallet().getCredentialsOfferNonce().isPresent(),
+				"The user's wallet should have received an offer nonce.");
+
+
 		// the token is used to receive an actual offer from the keycloak-issuer
 		userEnvironment.getWallet().getCredentialsOffer(adminJwt,
-				String.format("%s/credential-offer?type=PacketDeliveryService&format=ldp_vc",
-						getHappyPetsIssuerBase()));
+				String.format("%s/credential-offer/%s",
+						getHappyPetsIssuerBase(),userEnvironment.getWallet().getCredentialsOfferNonce().get()));
+
 		assertTrue(userEnvironment.getWallet().getCredentialsOffer().isPresent(),
 				"The user's wallet should have received an offer.");
 	}

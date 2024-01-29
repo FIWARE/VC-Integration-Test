@@ -1,0 +1,55 @@
+dsba-pdp:
+
+  # DB
+  db:
+    enabled: false
+    migrate:
+      enabled: false
+
+  deployment:
+    # Image
+    image:
+      pullPolicy: Always
+      repository: quay.io/fiware/dsba-pdp
+      # includes the http policy support
+      tag: 1.1.0
+
+    # Log level
+    logLevel: TRACE
+
+    # iSHARE config
+    ishare:
+      existingSecret: keyrock-ar-sec
+
+      clientId: EU.EORI.PACKETDELIVERY
+      trustedFingerprints:
+        - D2F62092F982CF783D4632BD86FA86C3FBFDB2D8C8A58BC6809163FCF5CD030B
+
+      ar:
+        id: "did:key:z6MksU6tMfbaDzvaRe5oFE4eZTVTV4HJM4fmQWWGsDGQVsEr"
+        delegationPath: "/ar/delegation"
+        tokenPath: "/oauth2/token"
+        url: "http://it-keyrock:5080"
+
+      trustAnchor:
+        id: "EU.EORI.FIWARESATELLITE"
+        tokenPath: "/token"
+        trustedListPath: "/trusted_list"
+        url: "http://it-trusted-issuers-registry:8080"
+
+    # Verifier
+    trustedVerifiers:
+      - http://it-vcverifier:7070/.well-known/jwks
+
+    # Provider DID
+    providerId: "did:key:z6MksU6tMfbaDzvaRe5oFE4eZTVTV4HJM4fmQWWGsDGQVsEr"
+
+  service:
+    type: LoadBalancer
+    port: 7080
+  # ENVs
+  additionalEnvVars:
+    - name: ISHARE_CERTIFICATE_PATH
+      value: /iShare/cert
+    - name: ISHARE_KEY_PATH
+      value: /iShare/key

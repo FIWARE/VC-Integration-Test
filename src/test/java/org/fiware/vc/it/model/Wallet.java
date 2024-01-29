@@ -1,7 +1,6 @@
 package org.fiware.vc.it.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -43,6 +42,7 @@ public class Wallet {
 			.build();
 
 	private CredentialsOfferVO credentialsOffer;
+	private org.fiware.keycloak.oidcvc.model.CredentialOfferURIVO credentialsOfferURI;
 	private OpenIdInfo issuerInfo;
 	private Object credential;
 	private String accessToken;
@@ -56,6 +56,17 @@ public class Wallet {
 		assertEquals(HttpStatus.SC_OK, offerResponse.statusCode(), "An offer should have been presented.");
 
 		credentialsOffer = OBJECT_MAPPER.readValue(offerResponse.body(), CredentialsOfferVO.class);
+	}
+
+	public void getCredentialsOfferURI(String keycloakJwt, String connectionString) throws Exception {
+		HttpRequest offerRequest = HttpRequest.newBuilder()
+				.uri(URI.create(connectionString))
+				.header("Authorization", String.format("Bearer %s", keycloakJwt)).build();
+		HttpResponse<String> offerResponse = HTTP_CLIENT.send(offerRequest, HttpResponse.BodyHandlers.ofString());
+
+		assertEquals(HttpStatus.SC_OK, offerResponse.statusCode(), "An offer uri should have been presented.");
+
+		credentialsOfferURI = OBJECT_MAPPER.readValue(offerResponse.body(), org.fiware.keycloak.oidcvc.model.CredentialOfferURIVO.class);
 	}
 
 	public void getIssuerOpenIdConfiguration() throws Exception {
@@ -78,7 +89,7 @@ public class Wallet {
 	public void getTokenFromIssuer() throws Exception {
 		Map<String, String> tokenRequestFormData = Map.of("grant_type",
 				"urn:ietf:params:oauth:grant-type:pre-authorized_code", "code",
-				credentialsOffer.getGrants().getPreAuthorizedCode());
+				credentialsOffer.getGrants().getUrnColonIetfColonParamsColonOauthColonGrantTypeColonPreAuthorizedCode().getPreAuthorizedCode());
 
 		HttpRequest tokenRequest = HttpRequest.newBuilder()
 				.uri(URI.create(issuerInfo.getTokenEndpoint()))
@@ -135,7 +146,7 @@ public class Wallet {
 		URI authResponseUri = new URIBuilder(String.format("%s/api/v1/authentication_response",
 				PacketDeliveryEnvironment.PACKET_DELIVERY_VERIFIER_ADDRESS))
 				.addParameter("state", sameDeviceParams.getState())
-				.addParameter("vp_token", encoder.encodeToString(OBJECT_MAPPER.writeValueAsString(vp).getBytes()))
+				.addParameter("vp_token", encoder.withoutPadding().encodeToString(OBJECT_MAPPER.writeValueAsString(vp).getBytes()))
 				.addParameter("presentation_submission",
 						encoder.encodeToString(OBJECT_MAPPER.writeValueAsString(presentationSubmission).getBytes()))
 				.build();
@@ -182,5 +193,9 @@ public class Wallet {
 
 	public Optional<String> getAccessToken() {
 		return Optional.ofNullable(accessToken);
+	}
+
+	public Optional<String> getCredentialsOfferNonce() {
+		return Optional.ofNullable(credentialsOfferURI).map(org.fiware.keycloak.oidcvc.model.CredentialOfferURIVO::getNonce);
 	}
 }

@@ -1,0 +1,15 @@
+credentials-config-service:
+
+  # Image
+  deployment:
+    image:
+      repository: quay.io/fiware/credentials-config-service
+      tag: 1.0.1
+
+  # Database config
+  database:
+    persistence: false
+
+  service:
+    type: LoadBalancer
+    port: 4040

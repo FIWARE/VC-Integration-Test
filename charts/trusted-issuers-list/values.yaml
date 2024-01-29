@@ -1,0 +1,23 @@
+trusted-issuers-list:
+
+  # Image
+  deployment:
+    image:
+      tag: 0.2.0
+  ingress:
+    til:
+      enabled: false
+    tir:
+      enabled: false
+  route:
+    til:
+      enabled: false
+    tir:
+      enabled: false
+  service:
+    port: 5050
+    type: LoadBalancer
+
+  # Database config
+  database:
+    persistence: false
