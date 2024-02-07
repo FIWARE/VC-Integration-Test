@@ -127,7 +127,7 @@ public class Application {
 
 		Map<String, String> tokenRequestFormData = Map.of(
 				"grant_type", "vp_token",
-				"scope", "pdc",
+				"scope", "someScope",
 				"vp_token", wallet.getSignedVerifiablePresentation());
 
 		HttpRequest tokenRequest = HttpRequest.newBuilder()

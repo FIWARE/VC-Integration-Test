@@ -86,6 +86,31 @@ public class HappypetsToPacketDeliveryStandardScenario extends StepDefinitions {
 				"The user's wallet should have received an offer.");
 	}
 
+	@When("The gold user requests a verifiable presentation offer from HappyPets.")
+	public void happyPetsGoldGetVerifiablePresentationOffer() throws Exception {
+		// a user account token is required to retrieve an offer
+		// in a real world scenario, this could f.e. be a login to keycloak, where to QR is scanned
+		// or any kind of m2m-interaction with Keycloak to get an service-account token
+		String adminJwt = getUserTokenForAccountsAtHappypets(HappyPetsEnvironment.HAPPTYPETS_GOLD_USER,
+				HappyPetsEnvironment.HAPPTYPETS_GOLD_USER_PASSWORD);
+
+		// the token is used to receive a nonce from the keycloak-issuer, to be used to retrieve the actual offer
+		userEnvironment.getWallet().getCredentialsOfferURI(adminJwt,
+				String.format("%s/credential-offer-uri?type=PacketDeliveryService&format=ldp_vc",
+						getHappyPetsIssuerBase()));
+		assertTrue(userEnvironment.getWallet().getCredentialsOfferNonce().isPresent(),
+				"The user's wallet should have received an offer nonce.");
+
+
+		// the token is used to receive an actual offer from the keycloak-issuer
+		userEnvironment.getWallet().getCredentialsOffer(adminJwt,
+				String.format("%s/credential-offer/%s",
+						getHappyPetsIssuerBase(),userEnvironment.getWallet().getCredentialsOfferNonce().get()));
+
+		assertTrue(userEnvironment.getWallet().getCredentialsOffer().isPresent(),
+				"The user's wallet should have received an offer.");
+	}
+
 	@When("The users uses the offer to receive a credential.")
 	public void userGetsCredential() throws Exception {
 
