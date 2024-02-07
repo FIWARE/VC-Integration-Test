@@ -62,7 +62,6 @@ public class HappypetsToPacketDeliveryStandardScenario extends StepDefinitions {
 	}
 
 	@When("The gold user requests a credentials offer from HappyPets.")
-
 	public void happyPetsGoldGetCredentialsOffer() throws Exception {
 		// a user account token is required to retrieve an offer
 		// in a real world scenario, this could f.e. be a login to keycloak, where to QR is scanned
@@ -104,7 +103,6 @@ public class HappypetsToPacketDeliveryStandardScenario extends StepDefinitions {
 		userEnvironment.getWallet().getTheCredential();
 		assertTrue(userEnvironment.getWallet().getCredential().isPresent(),
 				"The wallet should have received a credential.");
-
 	}
 
 	@When("The user authenticates with the same-device flow.")
@@ -133,6 +131,14 @@ public class HappypetsToPacketDeliveryStandardScenario extends StepDefinitions {
 		// through the token endpoint for the JWT.
 		userEnvironment.getApplication().exchangeCodeForJWT(authResponseParams);
 		assertTrue(userEnvironment.getApplication().getJwt().isPresent(), "A JWT should have been retrieved.");
+
+	}
+
+	@When("The user authenticates with the M2M flow.")
+	public void authenticateViaM2MFlow() throws Exception {
+
+		userEnvironment.getApplication().startM2MFlow(userEnvironment.getWallet());
+		assertTrue(userEnvironment.getApplication().getJwt().isPresent(), "A JWT should have been retrieved via M2M Flow.");
 
 	}
 

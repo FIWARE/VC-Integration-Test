@@ -123,6 +123,28 @@ public class Application {
 				"The issuer should either be created or already exist.");
 	}
 
+	public void startM2MFlow(Wallet wallet) throws Exception {
+
+		Map<String, String> tokenRequestFormData = Map.of(
+				"grant_type", "vp_token",
+				"scope", "pdc",
+				"vp_token", wallet.getSignedVerifiablePresentation());
+
+		HttpRequest tokenRequest = HttpRequest.newBuilder()
+				.uri(URI.create(String.format("%s/token",
+						applicationConfig.verifierAddress())))
+				.POST(HttpRequest.BodyPublishers.ofString(getFormDataAsString(tokenRequestFormData)))
+				.header("Content-Type", MediaType.APPLICATION_FORM_URLENCODED)
+				.header("client_id",applicationConfig.clientId())
+				.build();
+		HttpResponse<String> tokenResponse = HTTP_CLIENT.send(tokenRequest,
+				HttpResponse.BodyHandlers.ofString());
+		assertEquals(HttpStatus.SC_OK, tokenResponse.statusCode(), "A token should have been returned.");
+		TokenResponse tr = OBJECT_MAPPER.readValue(tokenResponse.body(), TokenResponse.class);
+		assertNotNull(tr.getAccessToken(), "A token should have been issued for the M2M Flow");
+		jwt = tr.getAccessToken();
+	}
+
 	public SameDeviceParams startSameDeviceFlow() throws Exception {
 		HttpRequest startSameDevice = HttpRequest.newBuilder()
 				.uri(URI.create(String.format("%s/api/v1/samedevice?state=%s&client_id=%s",
