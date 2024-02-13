@@ -1,6 +1,7 @@
 package org.fiware.vc.it.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -47,6 +48,8 @@ public class Wallet {
 	private Object credential;
 	private String accessToken;
 
+	private VPSigner vpSigner = new VPSigner(OBJECT_MAPPER);
+
 	public void getCredentialsOffer(String keycloakJwt, String connectionString) throws Exception {
 		HttpRequest offerRequest = HttpRequest.newBuilder()
 				.uri(URI.create(connectionString))
@@ -67,6 +70,14 @@ public class Wallet {
 		assertEquals(HttpStatus.SC_OK, offerResponse.statusCode(), "An offer uri should have been presented.");
 
 		credentialsOfferURI = OBJECT_MAPPER.readValue(offerResponse.body(), org.fiware.keycloak.oidcvc.model.CredentialOfferURIVO.class);
+	}
+
+	public String getSignedVerifiablePresentation() throws Exception{
+		var credentialDocument = (ObjectNode)OBJECT_MAPPER.valueToTree(credential);
+		VerifiablePresentation vp = vpSigner.createPresentationFromVC(credentialDocument);
+
+		Base64.Encoder encoder = Base64.getUrlEncoder();
+		return encoder.withoutPadding().encodeToString(OBJECT_MAPPER.writeValueAsString(vp).getBytes());
 	}
 
 	public void getIssuerOpenIdConfiguration() throws Exception {
